@@ -1,0 +1,75 @@
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  background-color: #d2d5d7;
+}
+
+.footer {
+  bottom: 0;
+  z-index: 2;
+  text-align: center;
+  background-color: #d2d5d7;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+.logoImage {
+  width: 40px;
+  height: 40px;
+  margin-right: 10px;
+}
+
+.logoText {
+  font-size: 18px;
+}
+
+.navbarButtons {
+  display: flex;
+  gap: 5px;
+}
+
+
+/* Sider and Main content area styles */
+.container {
+  display: flex;
+  flex-wrap: wrap;
+  border: 1px solid #ccc;
+  background-color: #f6f8f9;
+}
+
+.sider {
+  flex: 1 0 100%;
+  padding: 10px;
+  background-color: #fff;
+}
+
+.section {
+  margin-bottom: 5px;
+  padding: 10px;
+}
+
+.mainContent {
+  flex: 1;
+  padding: 8px;
+}
+
+@media (min-width: 768px) {
+  .sider {
+    flex: 0 0 auto;
+    width: 300px;
+    min-width: 300px;
+  }
+
+  .mainContent {
+    flex: 1;
+    min-width: 0;
+  }
+}
