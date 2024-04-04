@@ -8,8 +8,7 @@ import {
   rainbowWallet,
   trustWallet
 } from "@thirdweb-dev/react";
-import { Ethereum, Polygon, Goerli, Mumbai } from "@thirdweb-dev/chains";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Ethereum, Polygon, Mumbai } from "@thirdweb-dev/chains";
 
 const supportedWallets = [
   metamaskWallet({ recommended: true }),
@@ -19,10 +18,8 @@ const supportedWallets = [
   trustWallet()
 ];
 
-const supportedChains = [Ethereum, Polygon, Goerli, Mumbai];
+const supportedChains = [Ethereum, Polygon, Mumbai];
 const clientId = process.env.NEXT_PUBLIC_THIRDWEB_CLIENT_ID;
-
-const client = new QueryClient();
 
 export default function Web3Provider({ children }) {
   const [mounted, setMounted] = useState(false);
@@ -35,16 +32,14 @@ export default function Web3Provider({ children }) {
       autoConnect={true}
       clientId={clientId}
       dAppMeta={{
-        name: "Push Communities",
+        name: "PushTime",
         description:
-          "Push Communities is a decentralized chat application that allows users to create and join chat groups. It is built on top of the Push Protocol.",
+          "PushTime is a decentralized video calling application built with Push Protocol",
         logoUrl: "https://example.com/logo.png",
         url: "https://example.com"
       }}
     >
-      <QueryClientProvider client={client}>
-        {mounted && children}
-      </QueryClientProvider>
+      {mounted && children}
     </ThirdwebProvider>
   );
 }

@@ -6,7 +6,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "Push Communities",
+  title: "PushTime",
   description: "A place to connect with your Web3 friends and family."
 };
 

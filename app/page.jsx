@@ -1,18 +1,42 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import { Modal, Button, Card, Input, Row, Col, Space } from "antd";
+import { Modal, Button, Card, Input, Row, Col, Space, message } from "antd";
 import { IoMdMic, IoMdMicOff, IoMdVideocam } from "react-icons/io";
 import { IoVideocamOff } from "react-icons/io5";
 import { MdCallEnd } from "react-icons/md";
 import { IoCall } from "react-icons/io5";
 import { useSigner } from "@thirdweb-dev/react";
 import { PushAPI, CONSTANTS } from "@pushprotocol/restapi";
+import { getDefaultProvider } from "@ethersproject/providers";
+import { isAddress } from "@ethersproject/address";
 
 const { Search } = Input;
+
+const provider = getDefaultProvider();
+
+const addressToEns = async (address) => {
+  try {
+    return await provider.lookupAddress(address);
+  } catch (err) {
+    console.log("Error lookup address", err);
+    return address;
+  }
+};
+
+const ensToAddress = async (name) => {
+  try {
+    return await provider.resolveName(name);
+  } catch (err) {
+    console.log("Error resolving ens", err);
+    return name;
+  }
+};
 
 export default function Home() {
   const [data, setData] = useState(null);
   const [recipientAddress, setRecipientAddress] = useState("");
+  const [incomingCaller, setIncomingCaller] = useState(null);
+  const [loading, setLoading] = useState({});
   const pushUserVideo = useRef(null);
   const signer = useSigner();
 
@@ -32,10 +56,12 @@ export default function Home() {
         }
       });
 
-      stream.on(CONSTANTS.STREAM.VIDEO, (data) => {
+      stream.on(CONSTANTS.STREAM.VIDEO, async (data) => {
         console.log(data);
         if (data.event === CONSTANTS.VIDEO.EVENT.REQUEST) {
           console.log("Call request received");
+          const callerEnsish = await addressToEns(data?.peerInfo?.address);
+          setIncomingCaller(callerEnsish);
         }
 
         if (data.event === CONSTANTS.VIDEO.EVENT.APPROVE) {
@@ -62,7 +88,25 @@ export default function Home() {
   }, [signer]);
 
   const handleMakeCall = async () => {
-    await pushUserVideo.current.request([recipientAddress]);
+    // check if address or ens name is valid
+    if (!recipientAddress)
+      return message.error("Please enter address or ENS name");
+    setLoading({ makeCall: true });
+    try {
+      const recipientResolvedAddress = await ensToAddress(recipientAddress);
+      if (!isAddress(recipientResolvedAddress)) {
+        console.log("Invalid address");
+        message.error("Invalid address or ENS name");
+        return;
+      }
+
+      await pushUserVideo.current.request([recipientResolvedAddress]);
+    } catch (err) {
+      message.error("Something went wrong!. Please try again.");
+      console.log("Error making call", err);
+    } finally {
+      setLoading({ makeCall: false });
+    }
   };
 
   const handleEndCall = async () => {
@@ -105,7 +149,8 @@ export default function Home() {
           <Search
             placeholder="Enter Address or ENS name"
             onChange={(e) => setRecipientAddress(e.target.value)}
-            enterButton="Call"
+            enterButton={loading.makeCall ? "Calling..." : "Call"}
+            loading={loading?.makeCall}
             size="large"
             onSearch={handleMakeCall}
           />
@@ -205,9 +250,9 @@ export default function Home() {
         ]}
       >
         {data?.incoming[0]?.status === CONSTANTS.VIDEO.STATUS.RECEIVED &&
-          recipientAddress && (
+          incomingCaller && (
             <div>
-              <p>{`${recipientAddress} is calling.`}</p>
+              <p>{`${incomingCaller} is calling.`}</p>
             </div>
           )}
       </Modal>

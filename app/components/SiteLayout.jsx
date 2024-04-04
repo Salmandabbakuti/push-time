@@ -22,7 +22,7 @@ export default function SiteLayout({ children }) {
               height={40}
             />
             <Typography.Text strong className={styles.logoText}>
-              Push Communities
+              PushTime
             </Typography.Text>
           </div>
         </Link>
