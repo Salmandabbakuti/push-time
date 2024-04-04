@@ -189,7 +189,7 @@ export default function Home() {
           justify="center"
           style={{
             textAlign: "center",
-            marginTop: "50px"
+            marginTop: "10px"
           }}
         >
           <Col span={8}>
