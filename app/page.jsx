@@ -69,7 +69,8 @@ export default function Home() {
       if (data.event === CONSTANTS.VIDEO.EVENT.REQUEST) {
         console.log("Call request received");
         const callerEnsish = await addressToEns(data?.peerInfo?.address);
-        setIncomingCaller(callerEnsish);
+        console.log("Caller ENSish", callerEnsish);
+        setIncomingCaller(callerEnsish || data?.peerInfo?.address);
       }
 
       if (data.event === CONSTANTS.VIDEO.EVENT.APPROVE) {
@@ -98,10 +99,10 @@ export default function Home() {
 
   useEffect(() => {
     console.log(data);
-    if (signer) {
+    if (signer || incomingStatus === CONSTANTS.VIDEO.STATUS.UNINITIALIZED) {
       init();
     }
-  }, [signer]);
+  }, [signer, incomingStatus]);
 
   const handleMakeCall = async () => {
     // check if address or ens name is valid
@@ -157,7 +158,7 @@ export default function Home() {
     if (remoteVideoRef.current && data?.incoming[0]?.stream) {
       remoteVideoRef.current.srcObject = data.incoming[0].stream;
     }
-  }, [data?.local?.stream, data?.incoming[0]?.stream]);
+  }, [data]);
 
   const handleAcceptIncomingCall = async () => {
     setLoading({ acceptIncomingCall: true });
