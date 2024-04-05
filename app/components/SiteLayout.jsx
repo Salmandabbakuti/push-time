@@ -30,6 +30,7 @@ export default function SiteLayout({ children }) {
           <ConnectWallet
             theme="light"
             modalSize={"wide"} // compact | wide
+            switchToActiveChain={true}
             dropdownPosition={{
               side: "bottom", //  "top" | "bottom" | "left" | "right";
               align: "end" // "start" | "center" | "end";

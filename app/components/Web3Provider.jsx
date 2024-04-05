@@ -8,7 +8,7 @@ import {
   rainbowWallet,
   trustWallet
 } from "@thirdweb-dev/react";
-import { Ethereum, Polygon, Mumbai } from "@thirdweb-dev/chains";
+import { Ethereum, Polygon, Mumbai, Sepolia } from "@thirdweb-dev/chains";
 
 const supportedWallets = [
   metamaskWallet({ recommended: true }),
@@ -18,7 +18,7 @@ const supportedWallets = [
   trustWallet()
 ];
 
-const supportedChains = [Ethereum, Polygon, Mumbai];
+const supportedChains = [Ethereum, Polygon, Mumbai, Sepolia];
 const clientId = process.env.NEXT_PUBLIC_THIRDWEB_CLIENT_ID;
 
 export default function Web3Provider({ children }) {
