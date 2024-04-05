@@ -68,6 +68,7 @@ export default function Home() {
       console.log(data);
       if (data.event === CONSTANTS.VIDEO.EVENT.REQUEST) {
         console.log("Call request received");
+        console.log("data on request", data);
         const callerEnsish = await addressToEns(data?.peerInfo?.address);
         console.log("Caller ENSish", callerEnsish);
         setIncomingCaller(callerEnsish || data?.peerInfo?.address);
@@ -76,21 +77,25 @@ export default function Home() {
       if (data.event === CONSTANTS.VIDEO.EVENT.APPROVE) {
         console.log("Call approved");
         message.success("Call connected");
+        console.log("data on approve", data);
       }
 
       if (data.event === CONSTANTS.VIDEO.EVENT.DENY) {
         console.log("Call denied");
         message.error("Call denied");
+        console.log("data on deny", data);
       }
 
       if (data.event === CONSTANTS.VIDEO.EVENT.CONNECT) {
         console.log("Call connected");
         message.success("Call connected");
+        console.log("data on connect2", data);
       }
 
       if (data.event === CONSTANTS.VIDEO.EVENT.DISCONNECT) {
         console.log("Call disconnected");
         message.success("Call disconnected");
+        console.log("data on disconnect2", data);
       }
     });
 
@@ -99,10 +104,10 @@ export default function Home() {
 
   useEffect(() => {
     console.log(data);
-    if (signer || incomingStatus === CONSTANTS.VIDEO.STATUS.UNINITIALIZED) {
+    if (signer && !data?.local?.stream) {
       init();
     }
-  }, [signer, incomingStatus]);
+  }, [signer, data?.local?.stream]);
 
   const handleMakeCall = async () => {
     // check if address or ens name is valid
@@ -186,47 +191,27 @@ export default function Home() {
 
   return (
     <div>
-      <Form
-        onFinish={handleMakeCall}
-        style={{ textAlign: "center", marginTop: "50px" }}
-      >
-        <Row justify="center" style={{ marginTop: "50px" }}>
-          <Col span={8}>
-            <Form.Item
-              name="address"
-              hasFeedback
-              rules={[
-                {
-                  validator: async (_, address) => {
-                    const resolvedAddress = await ensToAddress(address);
-                    if (!isAddress(resolvedAddress)) {
-                      throw new Error("Invalid address or ENS name");
-                    }
-                  }
-                }
-              ]}
-            >
-              <Input
-                placeholder="Enter Address or ENS name"
-                onChange={(e) => setRecipientAddress(e.target.value)}
-                required
-                suffix={
-                  <Button
-                    type="primary"
-                    htmlType="submit"
-                    shape="round"
-                    size="middle"
-                    icon={<IoCall />}
-                    loading={loading?.makeCall}
-                  >
-                    {loading.makeCall ? "Calling..." : "Call"}
-                  </Button>
-                }
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-      </Form>
+      <Row justify="center" style={{ marginTop: "50px" }}>
+        <Col span={8}>
+          <Input
+            placeholder="Enter Address or ENS name"
+            onChange={(e) => setRecipientAddress(e.target.value)}
+            required
+            suffix={
+              <Button
+                type="primary"
+                onClick={handleMakeCall}
+                shape="round"
+                size="middle"
+                icon={<IoCall />}
+                loading={loading?.makeCall}
+              >
+                {loading.makeCall ? "Calling..." : "Call"}
+              </Button>
+            }
+          />
+        </Col>
+      </Row>
       <Card>
         <Row justify="center" style={{ marginTop: "50px" }}>
           <Col span={8}>
