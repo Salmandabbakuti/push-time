@@ -40,56 +40,59 @@ export default function Home() {
   const pushUserVideo = useRef(null);
   const signer = useSigner();
 
+  const incomingStatus = data?.incoming[0]?.status;
+
+  const init = async () => {
+    if (!signer) return message.error("Please connect your wallet");
+    const pushUser = await PushAPI.initialize(signer, {
+      env: CONSTANTS.ENV.STAGING
+    });
+    const stream = await pushUser.initStream([CONSTANTS.STREAM.VIDEO]);
+    pushUserVideo.current = await pushUser.video.initialize(setData, {
+      stream: stream,
+      config: {
+        video: true,
+        audio: true
+      }
+    });
+
+    stream.on(CONSTANTS.STREAM.VIDEO, async (data) => {
+      console.log(data);
+      if (data.event === CONSTANTS.VIDEO.EVENT.REQUEST) {
+        console.log("Call request received");
+        const callerEnsish = await addressToEns(data?.peerInfo?.address);
+        setIncomingCaller(callerEnsish);
+      }
+
+      if (data.event === CONSTANTS.VIDEO.EVENT.APPROVE) {
+        console.log("Call approved");
+        message.success("Call connected");
+      }
+
+      if (data.event === CONSTANTS.VIDEO.EVENT.DENY) {
+        console.log("Call denied");
+        message.error("Call denied");
+      }
+
+      if (data.event === CONSTANTS.VIDEO.EVENT.CONNECT) {
+        console.log("Call connected");
+        message.success("Call connected");
+      }
+
+      if (data.event === CONSTANTS.VIDEO.EVENT.DISCONNECT) {
+        console.log("Call disconnected");
+        message.success("Call disconnected");
+      }
+    });
+
+    stream.connect();
+  };
+
   useEffect(() => {
-    const init = async () => {
-      if (!signer) return;
-
-      const pushUser = await PushAPI.initialize(signer, {
-        env: CONSTANTS.ENV.STAGING
-      });
-      const stream = await pushUser.initStream([CONSTANTS.STREAM.VIDEO]);
-      pushUserVideo.current = await pushUser.video.initialize(setData, {
-        stream: stream,
-        config: {
-          video: true,
-          audio: true
-        }
-      });
-
-      stream.on(CONSTANTS.STREAM.VIDEO, async (data) => {
-        console.log(data);
-        if (data.event === CONSTANTS.VIDEO.EVENT.REQUEST) {
-          console.log("Call request received");
-          const callerEnsish = await addressToEns(data?.peerInfo?.address);
-          setIncomingCaller(callerEnsish);
-        }
-
-        if (data.event === CONSTANTS.VIDEO.EVENT.APPROVE) {
-          console.log("Call approved");
-          message.success("Call connected");
-        }
-
-        if (data.event === CONSTANTS.VIDEO.EVENT.DENY) {
-          console.log("Call denied");
-          message.error("Call denied");
-        }
-
-        if (data.event === CONSTANTS.VIDEO.EVENT.CONNECT) {
-          console.log("Call connected");
-          message.success("Call connected");
-        }
-
-        if (data.event === CONSTANTS.VIDEO.EVENT.DISCONNECT) {
-          console.log("Call disconnected");
-          message.success("Call disconnected");
-        }
-      });
-
-      stream.connect();
-    };
-
-    init();
-  }, [signer]);
+    if (signer || incomingStatus === CONSTANTS.VIDEO.STATUS.UNINITIALIZED) {
+      init();
+    }
+  }, [signer, incomingStatus]);
 
   const handleMakeCall = async () => {
     // check if address or ens name is valid
@@ -145,7 +148,7 @@ export default function Home() {
     if (remoteVideoRef.current && data?.incoming[0]?.stream) {
       remoteVideoRef.current.srcObject = data.incoming[0].stream;
     }
-  }, [data]);
+  }, [data?.local?.stream, data?.incoming[0]?.stream]);
 
   const handleAcceptIncomingCall = async () => {
     setLoading({ acceptIncomingCall: true });
@@ -200,7 +203,7 @@ export default function Home() {
               </video>
             </Card>
           </Col>
-          {data?.incoming[0].status === CONSTANTS.VIDEO.STATUS.CONNECTED && (
+          {incomingStatus === CONSTANTS.VIDEO.STATUS.CONNECTED && (
             <Col span={8}>
               <Card title="Remote User's Video" style={{ textAlign: "center" }}>
                 {/* Remote user's video stream here */}
@@ -231,9 +234,8 @@ export default function Home() {
                 onClick={handleToggleAudio}
                 icon={data?.local?.audio ? <IoMdMic /> : <IoMdMicOff />}
               />
-              {/* show end call button only when remote data?.incoming[0]?.status */}
-              {data?.incoming[0]?.status ===
-                CONSTANTS.VIDEO.STATUS.CONNECTED && (
+              {/* show end call button only when remote incomingStatus */}
+              {incomingStatus === CONSTANTS.VIDEO.STATUS.CONNECTED && (
                 <Button
                   onClick={handleEndCall}
                   icon={<MdCallEnd />}
@@ -249,8 +251,7 @@ export default function Home() {
       <Modal
         title="Incoming Call"
         open={
-          data?.incoming[0]?.status === CONSTANTS.VIDEO.STATUS.RECEIVED &&
-          incomingCaller
+          incomingStatus === CONSTANTS.VIDEO.STATUS.RECEIVED && incomingCaller
         }
         footer={[
           <Button
@@ -283,7 +284,7 @@ export default function Home() {
           </Button>
         ]}
       >
-        {data?.incoming[0]?.status === CONSTANTS.VIDEO.STATUS.RECEIVED &&
+        {incomingStatus === CONSTANTS.VIDEO.STATUS.RECEIVED &&
           incomingCaller && (
             <div>
               <p>{`${incomingCaller} is calling.`}</p>
