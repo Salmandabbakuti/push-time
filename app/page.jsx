@@ -20,8 +20,6 @@ import { PushAPI, CONSTANTS } from "@pushprotocol/restapi";
 import { getDefaultProvider } from "@ethersproject/providers";
 import { isAddress } from "@ethersproject/address";
 
-const { Search } = Input;
-
 const provider = getDefaultProvider();
 
 const addressToEns = async (address) => {
@@ -99,10 +97,11 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if (signer || incomingStatus === CONSTANTS.VIDEO.STATUS.UNINITIALIZED) {
+    console.log(data);
+    if (signer) {
       init();
     }
-  }, [signer, incomingStatus]);
+  }, [signer]);
 
   const handleMakeCall = async () => {
     // check if address or ens name is valid
