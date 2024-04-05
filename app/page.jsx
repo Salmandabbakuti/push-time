@@ -103,11 +103,14 @@ export default function Home() {
   };
 
   useEffect(() => {
-    console.log(data);
-    if (signer && !data?.local?.stream) {
+    if (!signer) return;
+    // initialize the video stream when the video call is not initialized, call ended or denied.
+    if (
+      data?.incoming[0]?.status === CONSTANTS.VIDEO.STATUS.UNINITIALIZED ||
+      !data?.incoming
+    )
       init();
-    }
-  }, [signer, data?.local?.stream]);
+  }, [signer, data?.incoming[0].status]);
 
   const handleMakeCall = async () => {
     // check if address or ens name is valid
