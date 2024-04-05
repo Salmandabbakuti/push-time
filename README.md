@@ -26,7 +26,9 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to see the a
 
 ### Demo
 
-![Screenshot 2024-04-05 at 3 46 29 PM](https://github.com/Salmandabbakuti/push-time/assets/29351207/992e6792-8087-4a1c-a609-cd9276c4b100)
+![Screen1](https://github.com/Salmandabbakuti/push-time/assets/29351207/486a08ef-6506-4a5e-a901-10e8648294b9)
+
+![Screen2](https://github.com/Salmandabbakuti/push-time/assets/29351207/992e6792-8087-4a1c-a609-cd9276c4b100)
 
 ## Built With
 
