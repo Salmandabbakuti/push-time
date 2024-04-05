@@ -1,6 +1,16 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import { Modal, Button, Card, Input, Row, Col, Space, message } from "antd";
+import {
+  Modal,
+  Button,
+  Card,
+  Input,
+  Row,
+  Col,
+  Space,
+  message,
+  Form
+} from "antd";
 import { IoMdMic, IoMdMicOff, IoMdVideocam } from "react-icons/io";
 import { IoVideocamOff } from "react-icons/io5";
 import { MdCallEnd } from "react-icons/md";
@@ -176,18 +186,47 @@ export default function Home() {
 
   return (
     <div>
-      <Row justify="center" style={{ marginTop: "50px" }}>
-        <Col span={8}>
-          <Search
-            placeholder="Enter Address or ENS name"
-            onChange={(e) => setRecipientAddress(e.target.value)}
-            enterButton={loading.makeCall ? "Calling..." : "Call"}
-            loading={loading?.makeCall}
-            size="large"
-            onSearch={handleMakeCall}
-          />
-        </Col>
-      </Row>
+      <Form
+        onFinish={handleMakeCall}
+        style={{ textAlign: "center", marginTop: "50px" }}
+      >
+        <Row justify="center" style={{ marginTop: "50px" }}>
+          <Col span={8}>
+            <Form.Item
+              name="address"
+              hasFeedback
+              rules={[
+                {
+                  validator: async (_, address) => {
+                    const resolvedAddress = await ensToAddress(address);
+                    if (!isAddress(resolvedAddress)) {
+                      throw new Error("Invalid address or ENS name");
+                    }
+                  }
+                }
+              ]}
+            >
+              <Input
+                placeholder="Enter Address or ENS name"
+                onChange={(e) => setRecipientAddress(e.target.value)}
+                required
+                suffix={
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    shape="round"
+                    size="middle"
+                    icon={<IoCall />}
+                    loading={loading?.makeCall}
+                  >
+                    {loading.makeCall ? "Calling..." : "Call"}
+                  </Button>
+                }
+              />
+            </Form.Item>
+          </Col>
+        </Row>
+      </Form>
       <Card>
         <Row justify="center" style={{ marginTop: "50px" }}>
           <Col span={8}>
