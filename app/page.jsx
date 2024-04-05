@@ -194,27 +194,49 @@ export default function Home() {
 
   return (
     <div>
-      <Row justify="center" style={{ marginTop: "50px" }}>
-        <Col span={8}>
-          <Input
-            placeholder="Enter Address or ENS name"
-            onChange={(e) => setRecipientAddress(e.target.value)}
-            required
-            suffix={
-              <Button
-                type="primary"
-                onClick={handleMakeCall}
-                shape="round"
-                size="middle"
-                icon={<IoCall />}
-                loading={loading?.makeCall}
-              >
-                {loading.makeCall ? "Calling..." : "Call"}
-              </Button>
+      <Form
+        onFinish={handleMakeCall}
+        style={{
+          textAlign: "center",
+          marginTop: "10px",
+          display: "flex",
+          justifyContent: "center"
+        }}
+      >
+        <Form.Item
+          name="address"
+          hasFeedback
+          rules={[
+            {
+              validator: async (_, address) => {
+                const resolvedAddress = await ensToAddress(address);
+                if (!isAddress(resolvedAddress)) {
+                  throw new Error("Invalid address or ENS name");
+                }
+              }
             }
-          />
-        </Col>
-      </Row>
+          ]}
+        >
+          <Space>
+            <Input
+              size="large"
+              placeholder="Enter Address or ENS name"
+              onChange={(e) => setRecipientAddress(e.target.value)}
+              required
+            />
+            <Button
+              type="primary"
+              htmlType="submit"
+              shape="round"
+              size="large"
+              icon={<IoCall />}
+              loading={loading?.makeCall}
+            >
+              {loading.makeCall ? "Calling..." : "Call"}
+            </Button>
+          </Space>
+        </Form.Item>
+      </Form>
       <Card>
         <Row justify="center" style={{ marginTop: "50px" }}>
           <Col span={8}>
