@@ -247,9 +247,7 @@ export default function Home() {
                 autoPlay
                 muted
                 style={{ width: "100%" }}
-              >
-                {/* Add your video stream source here */}
-              </video>
+              />
             </Card>
           </Col>
           {incomingStatus === CONSTANTS.VIDEO.STATUS.CONNECTED && (
@@ -261,6 +259,31 @@ export default function Home() {
                   autoPlay
                   style={{ width: "100%" }}
                 />
+                {/* add video, audio icons based on remote user's settings */}
+                <Space>
+                  <Button
+                    type="text"
+                    style={{
+                      color: data?.incoming[0]?.video ? "green" : "red"
+                    }}
+                    icon={
+                      data?.incoming[0]?.video ? (
+                        <IoMdVideocam />
+                      ) : (
+                        <IoVideocamOff />
+                      )
+                    }
+                  />
+                  <Button
+                    type="text"
+                    style={{
+                      color: data?.incoming[0]?.audio ? "green" : "red"
+                    }}
+                    icon={
+                      data?.incoming[0]?.audio ? <IoMdMic /> : <IoMdMicOff />
+                    }
+                  />
+                </Space>
               </Card>
             </Col>
           )}
@@ -276,10 +299,12 @@ export default function Home() {
           <Col span={8}>
             <Space>
               <Button
+                style={{ color: data?.local?.video ? "green" : "red" }}
                 onClick={handleToggleVideo}
                 icon={data?.local?.video ? <IoMdVideocam /> : <IoVideocamOff />}
               />
               <Button
+                style={{ color: data?.local?.audio ? "green" : "red" }}
                 onClick={handleToggleAudio}
                 icon={data?.local?.audio ? <IoMdMic /> : <IoMdMicOff />}
               />
