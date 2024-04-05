@@ -66,18 +66,22 @@ export default function Home() {
 
         if (data.event === CONSTANTS.VIDEO.EVENT.APPROVE) {
           console.log("Call approved");
+          message.success("Call connected");
         }
 
         if (data.event === CONSTANTS.VIDEO.EVENT.DENY) {
           console.log("Call denied");
+          message.error("Call denied");
         }
 
         if (data.event === CONSTANTS.VIDEO.EVENT.CONNECT) {
           console.log("Call connected");
+          message.success("Call connected");
         }
 
         if (data.event === CONSTANTS.VIDEO.EVENT.DISCONNECT) {
           console.log("Call disconnected");
+          message.success("Call disconnected");
         }
       });
 
@@ -101,6 +105,7 @@ export default function Home() {
       }
 
       await pushUserVideo.current.request([recipientResolvedAddress]);
+      message.success("Video call request sent. Waiting for response..");
     } catch (err) {
       message.error("Something went wrong!. Please try again.");
       console.log("Error making call", err);
@@ -110,7 +115,15 @@ export default function Home() {
   };
 
   const handleEndCall = async () => {
-    await pushUserVideo.current.disconnect();
+    setLoading({ endCall: true });
+    try {
+      await pushUserVideo.current.disconnect();
+    } catch (err) {
+      message.error("Something went wrong!. Please try again.");
+      console.log("Error ending call", err);
+    } finally {
+      setLoading({ endCall: false });
+    }
   };
 
   const handleToggleAudio = async () => {
@@ -135,11 +148,27 @@ export default function Home() {
   }, [data]);
 
   const handleAcceptIncomingCall = async () => {
-    await pushUserVideo.current?.approve();
+    setLoading({ acceptIncomingCall: true });
+    try {
+      await pushUserVideo.current?.approve();
+    } catch (err) {
+      message.error("Something went wrong!. Please try again.");
+      console.log("Error accepting call", err);
+    } finally {
+      setLoading({ acceptIncomingCall: false });
+    }
   };
 
   const handleRejectIncomingCall = async () => {
-    await pushUserVideo.current?.deny();
+    setLoading({ rejectIncomingCall: true });
+    try {
+      await pushUserVideo.current?.deny();
+    } catch (err) {
+      message.error("Something went wrong!. Please try again.");
+      console.log("Error rejecting call", err);
+    } finally {
+      setLoading({ rejectIncomingCall: false });
+    }
   };
 
   return (
@@ -219,7 +248,10 @@ export default function Home() {
 
       <Modal
         title="Incoming Call"
-        open={data?.incoming[0]?.status === CONSTANTS.VIDEO.STATUS.RECEIVED}
+        open={
+          data?.incoming[0]?.status === CONSTANTS.VIDEO.STATUS.RECEIVED &&
+          incomingCaller
+        }
         footer={[
           <Button
             style={{
@@ -229,6 +261,7 @@ export default function Home() {
             }}
             key="accept"
             type="primary"
+            loading={loading?.acceptIncomingCall}
             icon={<IoCall />}
             onClick={handleAcceptIncomingCall}
           >
@@ -243,6 +276,7 @@ export default function Home() {
             key="reject"
             icon={<MdCallEnd />}
             danger
+            loading={loading.rejectIncomingCall}
             onClick={handleRejectIncomingCall}
           >
             Reject
