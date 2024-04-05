@@ -20,7 +20,7 @@ import { PushAPI, CONSTANTS } from "@pushprotocol/restapi";
 import { getDefaultProvider } from "@ethersproject/providers";
 import { isAddress } from "@ethersproject/address";
 
-const provider = getDefaultProvider();
+const provider = getDefaultProvider(process.env.NEXT_PUBLIC_MAINNET_RPC_URL);
 
 const addressToEns = async (address) => {
   try {
